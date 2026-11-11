@@ -16,11 +16,17 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class ValidationErrorDTO extends StandardErrorDTO {
 
-    @Builder.Default
-    private List<FieldErrorDTO> errors = new ArrayList<>();
+    private List<FieldErrorDTO> errors;
+
+    public List<FieldErrorDTO> getErrors() {
+        if (errors == null) {
+            errors = new ArrayList<>();
+        }
+        return errors;
+    }
 
     public void addError(String field, String message) {
-        errors.add(new FieldErrorDTO(field, message));
+        getErrors().add(new FieldErrorDTO(field, message));
     }
 
     @Data
