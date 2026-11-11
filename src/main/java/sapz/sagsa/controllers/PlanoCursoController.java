@@ -1,53 +1,45 @@
 package sapz.sagsa.controllers;
 
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import sapz.sagsa.models.PlanoCurso;
+import sapz.sagsa.models.dtos.PlanoCursoDTO;
 import sapz.sagsa.services.PlanoCursoService;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/planos-curso")
-@Validated
+@RequestMapping("/api/planos-curso")
+@RequiredArgsConstructor
 public class PlanoCursoController {
-    @Autowired
-    private PlanoCursoService planoCursoService;
+
+    private final PlanoCursoService planoCursoService;
 
     @GetMapping
-    public ResponseEntity<List<PlanoCurso>> findAll() {
-        return ResponseEntity.ok(planoCursoService.findAll());
+    public ResponseEntity<List<PlanoCursoDTO>> listarTodos() {
+        return ResponseEntity.ok(planoCursoService.listarTodos());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PlanoCurso> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(planoCursoService.findById(id));
+    public ResponseEntity<PlanoCursoDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(planoCursoService.buscarPorId(id));
     }
 
     @PostMapping
-    public ResponseEntity<Void> create(@Valid @RequestBody PlanoCurso planoCurso) {
-        planoCurso.setId(null);
-        PlanoCurso created = planoCursoService.create(planoCurso);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}").buildAndExpand(created.getId()).toUri();
-        return ResponseEntity.created(uri).build();
+    public ResponseEntity<PlanoCursoDTO> criar(@Valid @RequestBody PlanoCursoDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(planoCursoService.criar(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> update(@Valid @RequestBody PlanoCurso planoCurso, @PathVariable Long id) {
-        planoCurso.setId(id);
-        planoCursoService.update(id, planoCurso);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<PlanoCursoDTO> atualizar(@PathVariable Long id, @Valid @RequestBody PlanoCursoDTO dto) {
+        return ResponseEntity.ok(planoCursoService.atualizar(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        planoCursoService.delete(id);
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        planoCursoService.deletar(id);
         return ResponseEntity.noContent().build();
     }
 }

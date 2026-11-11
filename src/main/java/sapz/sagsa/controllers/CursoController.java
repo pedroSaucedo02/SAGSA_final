@@ -1,53 +1,45 @@
 package sapz.sagsa.controllers;
 
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import sapz.sagsa.models.Curso;
+import sapz.sagsa.models.dtos.CursoDTO;
 import sapz.sagsa.services.CursoService;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/cursos")
-@Validated
+@RequestMapping("/api/cursos")
+@RequiredArgsConstructor
 public class CursoController {
-    @Autowired
-    private CursoService cursoService;
+
+    private final CursoService cursoService;
 
     @GetMapping
-    public ResponseEntity<List<Curso>> findAll() {
-        return ResponseEntity.ok(cursoService.findAll());
+    public ResponseEntity<List<CursoDTO>> listarTodos() {
+        return ResponseEntity.ok(cursoService.listarTodos());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Curso> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(cursoService.findById(id));
+    public ResponseEntity<CursoDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(cursoService.buscarPorId(id));
     }
 
     @PostMapping
-    public ResponseEntity<Void> create(@Valid @RequestBody Curso curso) {
-        curso.setId(null);
-        Curso created = cursoService.create(curso);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}").buildAndExpand(created.getId()).toUri();
-        return ResponseEntity.created(uri).build();
+    public ResponseEntity<CursoDTO> criar(@Valid @RequestBody CursoDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(cursoService.criar(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> update(@Valid @RequestBody Curso curso, @PathVariable Long id) {
-        curso.setId(id);
-        cursoService.update(id, curso);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<CursoDTO> atualizar(@PathVariable Long id, @Valid @RequestBody CursoDTO dto) {
+        return ResponseEntity.ok(cursoService.atualizar(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        cursoService.delete(id);
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        cursoService.deletar(id);
         return ResponseEntity.noContent().build();
     }
 }

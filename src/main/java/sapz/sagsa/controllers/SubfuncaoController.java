@@ -5,36 +5,36 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sapz.sagsa.models.dtos.FuncaoDTO;
-import sapz.sagsa.services.FuncaoService;
+import sapz.sagsa.models.dtos.SubfuncaoDTO;
+import sapz.sagsa.services.SubfuncaoService;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/funcoes")
+@RequestMapping("/api/subfuncoes")
 @RequiredArgsConstructor
-public class FuncaoController {
+public class SubfuncaoController {
 
-    private final FuncaoService funcaoService;
+    private final SubfuncaoService subfuncaoService;
 
-    @GetMapping("/plano/{planoId}")
-    public ResponseEntity<List<FuncaoDTO>> listarPorPlanoCurso(@PathVariable Long planoId) {
-        return ResponseEntity.ok(funcaoService.listarPorPlanoCursoId(planoId));
+    @GetMapping("/funcao/{funcaoId}")
+    public ResponseEntity<List<SubfuncaoDTO>> listarPorFuncao(@PathVariable Long funcaoId) {
+        return ResponseEntity.ok(subfuncaoService.listarPorFuncaoId(funcaoId));
     }
 
     @PostMapping
-    public ResponseEntity<FuncaoDTO> criar(@Valid @RequestBody FuncaoDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(funcaoService.criar(dto));
+    public ResponseEntity<SubfuncaoDTO> criar(@Valid @RequestBody SubfuncaoDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(subfuncaoService.criar(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<FuncaoDTO> atualizar(@PathVariable Long id, @Valid @RequestBody FuncaoDTO dto) {
-        return ResponseEntity.ok(funcaoService.atualizar(id, dto));
+    public ResponseEntity<SubfuncaoDTO> atualizar(@PathVariable Long id, @Valid @RequestBody SubfuncaoDTO dto) {
+        return ResponseEntity.ok(subfuncaoService.atualizar(id, dto));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        funcaoService.deletar(id);
+        subfuncaoService.deletar(id);
         return ResponseEntity.noContent().build();
     }
 }

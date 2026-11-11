@@ -25,7 +25,7 @@ public class AlunoService {
     @Transactional(readOnly = true)
     public AlunoDTO buscarPorId(Long id) {
         Aluno aluno = alunoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Aluno não encontrado com o ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Aluno não encontrado com ID: " + id));
         return toDTO(aluno);
     }
 
@@ -33,38 +33,39 @@ public class AlunoService {
     public AlunoDTO criar(AlunoDTO dto) {
         Aluno aluno = new Aluno();
         aluno.setNome(dto.getNome());
-        aluno.setMatricula(dto.getMatricula());
+        aluno.setCpf(dto.getCpf());
         aluno.setEmail(dto.getEmail());
-
+        aluno.setMatricula(dto.getMatricula());
         return toDTO(alunoRepository.save(aluno));
     }
 
     @Transactional
     public AlunoDTO atualizar(Long id, AlunoDTO dto) {
         Aluno aluno = alunoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Aluno não encontrado com o ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Aluno não encontrado com ID: " + id));
 
         aluno.setNome(dto.getNome());
-        aluno.setMatricula(dto.getMatricula());
+        aluno.setCpf(dto.getCpf());
         aluno.setEmail(dto.getEmail());
-
+        aluno.setMatricula(dto.getMatricula());
         return toDTO(alunoRepository.save(aluno));
     }
 
     @Transactional
     public void deletar(Long id) {
         if (!alunoRepository.existsById(id)) {
-            throw new EntityNotFoundException("Aluno não encontrado com o ID: " + id);
+            throw new EntityNotFoundException("Aluno não encontrado com ID: " + id);
         }
         alunoRepository.deleteById(id);
     }
 
-    private AlunoDTO toDTO(Aluno aluno) {
+    private AlunoDTO toDTO(Aluno a) {
         return AlunoDTO.builder()
-                .id(aluno.getId())
-                .nome(aluno.getNome())
-                .matricula(aluno.getMatricula())
-                .email(aluno.getEmail())
+                .id(a.getId())
+                .nome(a.getNome())
+                .cpf(a.getCpf())
+                .email(a.getEmail())
+                .matricula(a.getMatricula())
                 .build();
     }
 }

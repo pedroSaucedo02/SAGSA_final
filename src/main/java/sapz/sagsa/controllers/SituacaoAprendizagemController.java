@@ -1,60 +1,50 @@
 package sapz.sagsa.controllers;
 
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import sapz.sagsa.models.SituacaoAprendizagem;
+import sapz.sagsa.models.dtos.SituacaoAprendizagemDTO;
 import sapz.sagsa.services.SituacaoAprendizagemService;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/situacoes-aprendizagem")
-@Validated
+@RequestMapping("/api/situacoes-aprendizagem")
+@RequiredArgsConstructor
 public class SituacaoAprendizagemController {
-    @Autowired
-    private SituacaoAprendizagemService situacaoAprendizagemService;
+
+    private final SituacaoAprendizagemService saService;
 
     @GetMapping
-    public ResponseEntity<List<SituacaoAprendizagem>> findAll() {
-        return ResponseEntity.ok(situacaoAprendizagemService.findAll());
+    public ResponseEntity<List<SituacaoAprendizagemDTO>> listarTodas() {
+        return ResponseEntity.ok(saService.listarTodas());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SituacaoAprendizagem> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(situacaoAprendizagemService.findById(id));
+    public ResponseEntity<SituacaoAprendizagemDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(saService.buscarPorId(id));
     }
 
     @GetMapping("/instrutor/{instrutorId}")
-    public ResponseEntity<List<SituacaoAprendizagem>> findByInstrutor(@PathVariable Long instrutorId) {
-        return ResponseEntity.ok(situacaoAprendizagemService.findByInstrutor(instrutorId));
+    public ResponseEntity<List<SituacaoAprendizagemDTO>> listarPorInstrutor(@PathVariable Long instrutorId) {
+        return ResponseEntity.ok(saService.listarPorInstrutorId(instrutorId));
     }
 
     @PostMapping
-    public ResponseEntity<Void> create(@Valid @RequestBody SituacaoAprendizagem situacaoAprendizagem) {
-        situacaoAprendizagem.setId(null);
-        SituacaoAprendizagem created = situacaoAprendizagemService.create(situacaoAprendizagem);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}").buildAndExpand(created.getId()).toUri();
-        return ResponseEntity.created(uri).build();
+    public ResponseEntity<SituacaoAprendizagemDTO> criar(@Valid @RequestBody SituacaoAprendizagemDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(saService.criar(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> update(
-            @Valid @RequestBody SituacaoAprendizagem situacaoAprendizagem,
-            @PathVariable Long id) {
-        situacaoAprendizagem.setId(id);
-        situacaoAprendizagemService.update(id, situacaoAprendizagem);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<SituacaoAprendizagemDTO> atualizar(@PathVariable Long id, @Valid @RequestBody SituacaoAprendizagemDTO dto) {
+        return ResponseEntity.ok(saService.atualizar(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        situacaoAprendizagemService.delete(id);
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        saService.deletar(id);
         return ResponseEntity.noContent().build();
     }
 }

@@ -7,10 +7,12 @@ import org.springframework.transaction.annotation.Transactional;
 import sapz.sagsa.models.Escola;
 import sapz.sagsa.models.PlanoCurso;
 import sapz.sagsa.models.Turma;
+import sapz.sagsa.models.Usuario;
 import sapz.sagsa.models.dtos.TurmaDTO;
 import sapz.sagsa.repositories.EscolaRepository;
 import sapz.sagsa.repositories.PlanoCursoRepository;
 import sapz.sagsa.repositories.TurmaRepository;
+import sapz.sagsa.repositories.UsuarioRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,6 +24,7 @@ public class TurmaService {
     private final TurmaRepository turmaRepository;
     private final EscolaRepository escolaRepository;
     private final PlanoCursoRepository planoCursoRepository;
+    private final UsuarioRepository usuarioRepository;
 
     @Transactional(readOnly = true)
     public List<TurmaDTO> listarTodas() {
@@ -39,23 +42,32 @@ public class TurmaService {
     @Transactional(readOnly = true)
     public TurmaDTO buscarPorId(Long id) {
         Turma turma = turmaRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Turma não encontrada com o ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Turma não encontrada com ID: " + id));
         return toDTO(turma);
     }
 
     @Transactional
     public TurmaDTO criar(TurmaDTO dto) {
         Escola escola = escolaRepository.findById(dto.getEscolaId())
-                .orElseThrow(() -> new EntityNotFoundException("Escola não encontrada com o ID: " + dto.getEscolaId()));
-        PlanoCurso plano = planoCursoRepository.findById(dto.getCursoId())
-                .orElseThrow(() -> new EntityNotFoundException("Plano de Curso não encontrado com o ID: " + dto.getCursoId()));
+                .orElseThrow(() -> new EntityNotFoundException("Escola não encontrada com ID: " + dto.getEscolaId()));
+        PlanoCurso plano = planoCursoRepository.findById(dto.getPlanoCursoId())
+                .orElseThrow(() -> new EntityNotFoundException("Plano de Curso não encontrado com ID: " + dto.getPlanoCursoId()));
 
         Turma turma = new Turma();
-        turma.setCodigoTurma(dto.getCodigo());
+        turma.setCodigoTurma(dto.getCodigoTurma());
+        turma.setAno(dto.getAno());
+        turma.setSemestre(dto.getSemestre());
         turma.setDataInicio(dto.getDataInicio());
         turma.setDataFim(dto.getDataFim());
+        if (dto.getAtivo() != null) turma.setAtivo(dto.getAtivo());
         turma.setEscola(escola);
         turma.setPlanoCurso(plano);
+
+        if (dto.getCoordenadorId() != null) {
+            Usuario coordenador = usuarioRepository.findById(dto.getCoordenadorId())
+                    .orElseThrow(() -> new EntityNotFoundException("Coordenador não encontrado com ID: " + dto.getCoordenadorId()));
+            turma.setCoordenador(coordenador);
+        }
 
         return toDTO(turmaRepository.save(turma));
     }
@@ -63,17 +75,28 @@ public class TurmaService {
     @Transactional
     public TurmaDTO atualizar(Long id, TurmaDTO dto) {
         Turma turma = turmaRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Turma não encontrada com o ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Turma não encontrada com ID: " + id));
         Escola escola = escolaRepository.findById(dto.getEscolaId())
-                .orElseThrow(() -> new EntityNotFoundException("Escola não encontrada com o ID: " + dto.getEscolaId()));
-        PlanoCurso plano = planoCursoRepository.findById(dto.getCursoId())
-                .orElseThrow(() -> new EntityNotFoundException("Plano de Curso não encontrado com o ID: " + dto.getCursoId()));
+                .orElseThrow(() -> new EntityNotFoundException("Escola não encontrada com ID: " + dto.getEscolaId()));
+        PlanoCurso plano = planoCursoRepository.findById(dto.getPlanoCursoId())
+                .orElseThrow(() -> new EntityNotFoundException("Plano de Curso não encontrado com ID: " + dto.getPlanoCursoId()));
 
-        turma.setCodigoTurma(dto.getCodigo());
+        turma.setCodigoTurma(dto.getCodigoTurma());
+        turma.setAno(dto.getAno());
+        turma.setSemestre(dto.getSemestre());
         turma.setDataInicio(dto.getDataInicio());
         turma.setDataFim(dto.getDataFim());
+        if (dto.getAtivo() != null) turma.setAtivo(dto.getAtivo());
         turma.setEscola(escola);
         turma.setPlanoCurso(plano);
+
+        if (dto.getCoordenadorId() != null) {
+            Usuario coordenador = usuarioRepository.findById(dto.getCoordenadorId())
+                    .orElseThrow(() -> new EntityNotFoundException("Coordenador não encontrado com ID: " + dto.getCoordenadorId()));
+            turma.setCoordenador(coordenador);
+        } else {
+            turma.setCoordenador(null);
+        }
 
         return toDTO(turmaRepository.save(turma));
     }
@@ -81,19 +104,23 @@ public class TurmaService {
     @Transactional
     public void deletar(Long id) {
         if (!turmaRepository.existsById(id)) {
-            throw new EntityNotFoundException("Turma não encontrada com o ID: " + id);
+            throw new EntityNotFoundException("Turma não encontrada com ID: " + id);
         }
         turmaRepository.deleteById(id);
     }
 
-    private TurmaDTO toDTO(Turma turma) {
+    private TurmaDTO toDTO(Turma t) {
         return TurmaDTO.builder()
-                .id(turma.getId())
-                .codigo(turma.getCodigoTurma())
-                .dataInicio(turma.getDataInicio())
-                .dataFim(turma.getDataFim())
-                .escolaId(turma.getEscola() != null ? turma.getEscola().getId() : null)
-                .cursoId(turma.getPlanoCurso() != null ? turma.getPlanoCurso().getId() : null)
+                .id(t.getId())
+                .codigoTurma(t.getCodigoTurma())
+                .ano(t.getAno())
+                .semestre(t.getSemestre())
+                .dataInicio(t.getDataInicio())
+                .dataFim(t.getDataFim())
+                .ativo(t.getAtivo())
+                .escolaId(t.getEscola() != null ? t.getEscola().getId() : null)
+                .planoCursoId(t.getPlanoCurso() != null ? t.getPlanoCurso().getId() : null)
+                .coordenadorId(t.getCoordenador() != null ? t.getCoordenador().getId() : null)
                 .build();
     }
 }
